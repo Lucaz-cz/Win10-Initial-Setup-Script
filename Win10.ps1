@@ -1,5 +1,5 @@
 ##########
-# Win10 Initial Setup Script notebook
+# Win10 Initial Setup Script PC
 # Author: Disassembler <disassembler@dasm.cz>
 # Version: 2.2, 2017-04-08
 ##########
@@ -32,9 +32,9 @@ $preset = @(
 	# "LowerUAC",                   # "RaiseUAC",
 	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
 	#"DisableAdminShares",           # "EnableAdminShares",
-	# "DisableFirewall",            # "EnableFirewall",
-	# "DisableDefender",            # "EnableDefender",
-	# "DisableUpdateMSRT",          # "EnableUpdateMSRT",
+	 "DisableFirewall",            # "EnableFirewall",
+	 "DisableDefender",            # "EnableDefender",
+	 "DisableUpdateMSRT",          # "EnableUpdateMSRT",
 	# "DisableUpdateDriver",        # "EnableUpdateDriver",
 	"DisableUpdateRestart",         # "EnableUpdateRestart",
 	"DisableHomeGroups",            # "EnableHomeGroups",
@@ -495,7 +495,7 @@ Function EnableRemoteAssistance {
 Function EnableRemoteDesktop {
 	Write-Host "Enabling Remote Desktop w/o Network Level Authentication..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
+#	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
 }
 
 # Disable Remote Desktop
