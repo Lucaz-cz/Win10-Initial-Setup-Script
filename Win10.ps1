@@ -955,7 +955,7 @@ Function InstallOneDrive {
 # Uninstall default Microsoft applications
 Function UninstallBloatware {
 	Write-Host "Uninstalling default Microsoft applications..."
-	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage
@@ -970,7 +970,7 @@ Function UninstallBloatware {
 #	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
 	Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage
@@ -984,7 +984,7 @@ Function UninstallBloatware {
 	Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage
 	Get-AppxPackage "4DF9E0F8.Netflix" | Remove-AppxPackage
 	Get-AppxPackage "Drawboard.DrawboardPDF" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
 	Get-AppxPackage "D52A8D61.FarmVille2CountryEscape" | Remove-AppxPackage
 	Get-AppxPackage "GAMELOFTSA.Asphalt8Airborne" | Remove-AppxPackage
@@ -998,9 +998,9 @@ Function UninstallBloatware {
 	Get-AppxPackage "46928bounde.EclipseManager" | Remove-AppxPackage
 	Get-AppxPackage "A278AB0D.MarchofEmpires" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftPowerBIForWindows" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.RemoteDesktop" | Remove-AppxPackage
 }
 
