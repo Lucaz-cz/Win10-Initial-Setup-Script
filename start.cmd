@@ -13,7 +13,7 @@ IF "%Choice%"=="5" GOTO TABLET
 IF "%Choice%"=="2" GOTO PC2
 IF "%Choice%"=="6" GOTO FDOFF
 IF "%Choice%"=="7" GOTO FDON
-IF "%Choice%"=="8" GOTO 
+IF "%Choice%"=="8" GOTO NWPRIV
 IF "%Choice%"=="9" GOTO NWPUB
 IF "%Choice%"=="" GOTO end
 Goto end
