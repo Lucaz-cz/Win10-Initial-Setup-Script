@@ -40,9 +40,11 @@ Goto end
 
 :NWPRIV
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 SetCurrentNetworkPrivate
+Goto end
 
 :NWPUB
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 SetCurrentNetworkPublic
+Goto end
 
 :end
 pause
