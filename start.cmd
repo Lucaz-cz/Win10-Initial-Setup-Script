@@ -1,14 +1,20 @@
 cls
 echo PC "1"
-echo PC malá èistka "2"
+echo PC mala cistka "2"
 echo TABLET "5"
 echo Vypnout firerwall a defender "6"
+echo Zapnout firerwall a defender "7"
+echo Nastavit aktualni sit jako privatni "8"
+echo Nastavit aktualni sit jako verejnou "9"
 
 SET /p Choice=
 IF "%Choice%"=="1" GOTO PC1
 IF "%Choice%"=="5" GOTO TABLET
 IF "%Choice%"=="2" GOTO PC2
 IF "%Choice%"=="6" GOTO FDOFF
+IF "%Choice%"=="7" GOTO FDON
+IF "%Choice%"=="8" GOTO 
+IF "%Choice%"=="9" GOTO NWPUB
 IF "%Choice%"=="" GOTO end
 Goto end
 
@@ -28,6 +34,15 @@ Goto end
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 DisableUpdateMSRT DisableDefender DisableFirewall WaitForKey Restart
 Goto end
 
+:FDON
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 EnableFirewall EnableDefender EnableUpdateMSRT  WaitForKey Restart
+Goto end
+
+:NWPRIV
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 SetCurrentNetworkPrivate
+
+:NWPUB
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 SetCurrentNetworkPublic
 
 :end
 pause
