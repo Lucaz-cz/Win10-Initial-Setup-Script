@@ -45,8 +45,6 @@ EnableNumlock
 
 DisableConsumerApps
 DisableXboxFeatures
-UninstallMediaPlayer
-UninstallWorkFolders
 SetPhotoViewerAssociation
 AddPhotoViewerOpenWith
 DisableSearchAppInStore
