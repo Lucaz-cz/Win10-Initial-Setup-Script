@@ -1,0 +1,64 @@
+# Windows 10 - M40
+
+DisableTelemetry
+DisableWiFiSense
+DisableSmartScreen
+DisableWebSearch
+DisableStartSuggestions
+DisableLocationTracking
+DisableFeedback
+DisableAdvertisingID
+DisableCortana
+DisableErrorReporting
+RestrictUpdateP2P
+DisableAutoLogger
+DisableDiagTrack
+DisableWAPPush
+
+
+DisableSMB1
+SetCurrentNetworkPrivate
+SetUnknownNetworksPrivate
+DisableUpdateDriver
+DisableUpdateRestart
+DisableHomeGroups
+DisableRemoteAssistance
+DisableAutoplay
+DisableAutorun
+SetBIOSTimeUTC
+
+
+DisableStickyKeys
+ShowTaskManagerDetails
+ShowFileOperationsDetails
+ShowKnownExtensions
+ExplorerThisPC
+ShowThisPCOnDesktop
+HideDesktopFromThisPC
+HideDocumentsFromThisPC
+HideDownloadsFromThisPC
+HideMusicFromThisPC
+HidePicturesFromThisPC
+HideVideosFromThisPC
+EnableNumlock
+
+
+DisableConsumerApps
+DisableXboxFeatures
+UninstallMediaPlayer
+UninstallWorkFolders
+SetPhotoViewerAssociation
+AddPhotoViewerOpenWith
+DisableSearchAppInStore
+DisableNewAppPrompt
+EnableF8BootMenu
+
+
+# HideServerManagerOnLogin
+# DisableShutdownTracker
+# DisablePasswordPolicy
+# DisableCtrlAltDelLogin
+# DisableIEEnhancedSecurity
+
+WaitForKey
+Restart

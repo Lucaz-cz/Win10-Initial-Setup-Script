@@ -1,6 +1,7 @@
 cls
 echo PC "1"
 echo PC mala cistka "2"
+echo M40 "3"
 echo TABLET "5"
 echo Vypnout firerwall a defender "6"
 echo Zapnout firerwall a defender "7"
@@ -10,6 +11,7 @@ echo Nastavit aktualni sit jako verejnou "9"
 SET /p Choice=
 IF "%Choice%"=="1" GOTO PC1
 IF "%Choice%"=="5" GOTO TABLET
+IF "%Choice%"=="3" GOTO PCM40
 IF "%Choice%"=="2" GOTO PC2
 IF "%Choice%"=="6" GOTO FDOFF
 IF "%Choice%"=="7" GOTO FDON
@@ -24,6 +26,10 @@ Goto end
 
 :PC2
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 DisableTelemetry DisableWiFiSense DisableWebSearch DisableStartSuggestions DisableLocationTracking DisableFeedback DisableAdvertisingID DisableCortana DisableErrorReporting RestrictUpdateP2P DisableAutoLogger DisableDiagTrack DisableWAPPush DisableUpdateRestart DisableHomeGroups DisableRemoteAssistance  DisableAutoplay DisableAutorun DisableDefragmentation DisableStickyKeys ShowFileOperationsDetails ShowKnownExtensions ShowThisPCOnDesktop HideDesktopFromThisPC HideDocumentsFromThisPC HideDownloadsFromThisPC HideMusicFromThisPC HidePicturesFromThisPC HideVideosFromThisPC EnableF8BootMenu WaitForKey Restart
+Goto end
+
+:PCM40
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 -preset "pcm40.preset"
 Goto end
 
 :TABLET

@@ -1,17 +1,12 @@
 ##########
-# Win10 Initial Setup Script
+# Win10 / WinServer2016 Initial Setup Script
 # Author: Disassembler <disassembler@dasm.cz>
-# Version: 2.3, 2017-05-08
+# Version: 2.5, 2017-06-13
+# Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
 ##########
 
-# Ask for elevated permissions if required
-If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $args" -Verb RunAs
-	Exit
-}
-
 # Default preset
-$preset = @(
+$tweaks = @(
 	### Privacy Settings ###
 	"DisableTelemetry",             # "EnableTelemetry",
 	"DisableWiFiSense",             # "EnableWiFiSense",
@@ -32,6 +27,7 @@ $preset = @(
 	# "LowerUAC",                   # "RaiseUAC",
 	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
 	"DisableAdminShares",           # "EnableAdminShares",
+	"DisableSMB1",                  # "EnableSMB1",
 	"SetCurrentNetworkPrivate",     # "SetCurrentNetworkPublic",
 	# "SetUnknownNetworksPrivate",  # "SetUnknownNetworksPublic",
 	# "DisableFirewall",            # "EnableFirewall",
@@ -58,10 +54,12 @@ $preset = @(
 	"HideTaskView",                 # "ShowTaskView",
 	"ShowSmallTaskbarIcons",        # "ShowLargeTaskbarIcons",
 	"ShowTaskbarTitles",            # "HideTaskbarTitles",
+	"HideTaskbarPeopleIcon",        # "ShowTaskbarPeopleIcon",
 	"ShowTrayIcons",                # "HideTrayIcons",
 	"ShowKnownExtensions",          # "HideKnownExtensions",
 	"ShowHiddenFiles",              # "HideHiddenFiles",
-	"HideSyncNotifications"         # "ShowSyncNotifications"
+	"HideSyncNotifications"         # "ShowSyncNotifications",
+	"HideRecentShortcuts",          # "ShowRecentShortcuts",
 	"ExplorerThisPC",               # "ExplorerQuickAccess",
 	"ShowThisPCOnDesktop",          # "HideThisPCFromDesktop",
 	"HideDesktopFromThisPC",        # "ShowDesktopInThisPC",
@@ -83,6 +81,7 @@ $preset = @(
 	# "UninstallMediaPlayer",       # "InstallMediaPlayer",
 	# "UninstallWorkFolders",       # "InstallWorkFolders",
 	# "InstallLinuxSubsystem",      # "UninstallLinuxSubsystem",
+	# "InstallHyperV",              # "UninstallHyperV",
 	"SetPhotoViewerAssociation",    # "UnsetPhotoViewerAssociation",
 	"AddPhotoViewerOpenWith",       # "RemovePhotoViewerOpenWith",
 	"DisableSearchAppInStore",      # "EnableSearchAppInStore",
@@ -90,18 +89,17 @@ $preset = @(
 	"EnableF8BootMenu",             # "DisableF8BootMenu",
 	# "SetDEPOptOut",               # "SetDEPOptIn",
 
+	### Server Specific Tweaks ###
+	# "HideServerManagerOnLogin",   # "ShowServerManagerOnLogin",
+	# "DisableShutdownTracker",     # "EnableShutdownTracker",
+	# "DisablePasswordPolicy",      # "EnablePasswordPolicy",
+	# "DisableCtrlAltDelLogin",     # "EnableCtrlAltDelLogin",
+	# "DisableIEEnhancedSecurity",  # "EnableIEEnhancedSecurity",
+
 	### Auxiliary Functions ###
 	"WaitForKey",
 	"Restart"
 )
-
-# Load preset from arguments or a file
-If ($args.length -gt 0) {
-	$preset = $args
-	If ($args[0] -eq "-preset") {
-		$preset = Get-Content $args[1] -ErrorAction Stop
-	}
-}
 
 
 
@@ -287,6 +285,9 @@ Function EnableErrorReporting {
 # Restrict Windows Update P2P only to local network
 Function RestrictUpdateP2P {
 	Write-Host "Restricting Windows Update P2P only to local network..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
+		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
+	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
 	If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization")) {
 		New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" | Out-Null
@@ -391,6 +392,18 @@ Function EnableAdminShares {
 	Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "AutoShareWks" -ErrorAction SilentlyContinue
 }
 
+# Disable obsolete SMB 1.0 protocol
+Function DisableSMB1 {
+	Write-Host "Disabling SMB 1.0 protocol..."
+	Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
+}
+
+# Enable obsolete SMB 1.0 protocol
+Function EnableSMB1 {
+	Write-Host "Enabling SMB 1.0 protocol..."
+	Set-SmbServerConfiguration -EnableSMB1Protocol $true -Force
+}
+
 # Set current network profile to private (allow file sharing, device discovery, etc.)
 Function SetCurrentNetworkPrivate {
 	Write-Host "Setting current network profile to private..."
@@ -436,6 +449,9 @@ Function EnableFirewall {
 # Disable Windows Defender
 Function DisableDefender {
 	Write-Host "Disabling Windows Defender..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Force | Out-Null
+	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name "DisableAntiSpyware" -Type DWord -Value 1
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "SecurityHealth" -ErrorAction SilentlyContinue
 }
@@ -496,7 +512,7 @@ Function EnableUpdateRestart {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -ErrorAction SilentlyContinue
 }
 
-# Stop and disable Home Groups services
+# Stop and disable Home Groups services - Not applicable to Server
 Function DisableHomeGroups {
 	Write-Host "Stopping and disabling Home Groups services..."
 	Stop-Service "HomeGroupListener"
@@ -505,7 +521,7 @@ Function DisableHomeGroups {
 	Set-Service "HomeGroupProvider" -StartupType Disabled
 }
 
-# Enable and start Home Groups services
+# Enable and start Home Groups services - Not applicable to Server
 Function EnableHomeGroups {
 	Write-Host "Starting and enabling Home Groups services..."
 	Set-Service "HomeGroupListener" -StartupType Manual
@@ -513,13 +529,13 @@ Function EnableHomeGroups {
 	Start-Service "HomeGroupProvider"
 }
 
-# Disable Remote Assistance
+# Disable Remote Assistance - Not applicable to Server (unless Remote Assistance is explicitly installed)
 Function DisableRemoteAssistance {
 	Write-Host "Disabling Remote Assistance..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 }
 
-# Enable Remote Assistance
+# Enable Remote Assistance - Not applicable to Server (unless Remote Assistance is explicitly installed)
 Function EnableRemoteAssistance {
 	Write-Host "Enabling Remote Assistance..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 1
@@ -529,7 +545,7 @@ Function EnableRemoteAssistance {
 Function EnableRemoteDesktop {
 	Write-Host "Enabling Remote Desktop w/o Network Level Authentication..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 1
 }
 
 # Disable Remote Desktop
@@ -754,6 +770,21 @@ Function HideTaskbarTitles {
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarGlomLevel" -ErrorAction SilentlyContinue
 }
 
+# Hide Taskbar People icon
+Function HideTaskbarPeopleIcon {
+	Write-Host "Hiding People icon..."
+	If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
+		New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
+}
+
+# Show Taskbar People icon
+Function ShowTaskbarPeopleIcon {
+	Write-Host "Showing People icon..."
+	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -ErrorAction SilentlyContinue
+}
+
 # Show all tray icons
 Function ShowTrayIcons {
 	Write-Host "Showing all tray icons..."
@@ -802,6 +833,20 @@ Function ShowSyncNotifications {
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSyncProviderNotifications" -Type DWord -Value 1
 }
 
+# Hide recently and frequently used item shortcuts in Explorer
+Function HideRecentShortcuts {
+	Write-Host "Hiding recent shortcuts..."
+	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Type DWord -Value 0
+}
+
+# Show recently and frequently used item shortcuts in Explorer
+Function ShowRecentShortcuts {
+	Write-Host "Showing recent shortcuts..."
+	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -ErrorAction SilentlyContinue
+}
+
 # Change default Explorer view to This PC
 Function ExplorerThisPC {
 	Write-Host "Changing default Explorer view to This PC..."
@@ -818,9 +863,12 @@ Function ExplorerQuickAccess {
 Function ShowThisPCOnDesktop {
 	Write-Host "Showing This PC shortcut on desktop..."
 	If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu")) {
-		New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" | Out-Null
+		New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\ClassicStartMenu" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Type DWord -Value 0
+	If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel")) {
+		New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Force | Out-Null
+	}
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" -Name "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" -Type DWord -Value 0
 }
 
@@ -979,7 +1027,7 @@ Function EnableOneDrive {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\OneDrive" -Name "DisableFileSyncNGSC" -ErrorAction SilentlyContinue
 }
 
-# Uninstall OneDrive
+# Uninstall OneDrive - Not applicable to Server
 Function UninstallOneDrive {
 	Write-Host "Uninstalling OneDrive..."
 	Stop-Process -Name OneDrive -ErrorAction SilentlyContinue
@@ -1003,7 +1051,7 @@ Function UninstallOneDrive {
 	Remove-Item -Path "HKCR:\Wow6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" -Recurse -ErrorAction SilentlyContinue
 }
 
-# Install OneDrive
+# Install OneDrive - Not applicable to Server
 Function InstallOneDrive {
 	Write-Host "Installing OneDrive..."
 	$onedrive = "$env:SYSTEMROOT\SysWOW64\OneDriveSetup.exe"
@@ -1016,53 +1064,26 @@ Function InstallOneDrive {
 # Uninstall default Microsoft applications
 Function UninstallBloatware {
 	Write-Host "Uninstalling default Microsoft applications..."
-	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Getstarted" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
-	Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneVideo" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ConnectivityStore" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Office.Sway" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
-	Get-AppxPackage "9E2F88E3.Twitter" | Remove-AppxPackage
 	Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage
 	Get-AppxPackage "4DF9E0F8.Netflix" | Remove-AppxPackage
-	Get-AppxPackage "Drawboard.DrawboardPDF" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
 	Get-AppxPackage "D52A8D61.FarmVille2CountryEscape" | Remove-AppxPackage
 	Get-AppxPackage "GAMELOFTSA.Asphalt8Airborne" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MinecraftUWP" | Remove-AppxPackage
 	Get-AppxPackage "flaregamesGmbH.RoyalRevolt2" | Remove-AppxPackage
-	Get-AppxPackage "AdobeSystemsIncorporated.AdobePhotoshopExpress" | Remove-AppxPackage
 	Get-AppxPackage "ActiproSoftwareLLC.562882FEEB491" | Remove-AppxPackage
 	Get-AppxPackage "D5EA27B7.Duolingo-LearnLanguagesforFree" | Remove-AppxPackage
 	Get-AppxPackage "Facebook.Facebook" | Remove-AppxPackage
-	Get-AppxPackage "46928bounde.EclipseManager" | Remove-AppxPackage
-	Get-AppxPackage "A278AB0D.MarchofEmpires" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MicrosoftPowerBIForWindows" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.RemoteDesktop" | Remove-AppxPackage
 }
 
 # Install default Microsoft applications
@@ -1180,41 +1201,61 @@ Function EnableXboxFeatures {
 # Uninstall Windows Media Player
 Function UninstallMediaPlayer {
 	Write-Host "Uninstalling Windows Media Player..."
-	dism /online /Disable-Feature /FeatureName:MediaPlayback /Quiet /NoRestart
+	Disable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
 # Install Windows Media Player
 Function InstallMediaPlayer {
 	Write-Host "Installing Windows Media Player..."
-	dism /online /Enable-Feature /FeatureName:MediaPlayback /Quiet /NoRestart
+	Enable-WindowsOptionalFeature -Online -FeatureName "WindowsMediaPlayer" -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
-# Uninstall Work Folders Client
+# Uninstall Work Folders Client - Not applicable to Server
 Function UninstallWorkFolders {
 	Write-Host "Uninstalling Work Folders Client..."
-	dism /online /Disable-Feature /FeatureName:WorkFolders-Client /Quiet /NoRestart
+	Disable-WindowsOptionalFeature -Online -FeatureName "WorkFolders-Client" -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
-# Install Work Folders Client
+# Install Work Folders Client - Not applicable to Server
 Function InstallWorkFolders {
 	Write-Host "Installing Work Folders Client..."
-	dism /online /Enable-Feature /FeatureName:WorkFolders-Client /Quiet /NoRestart
+	Enable-WindowsOptionalFeature -Online -FeatureName "WorkFolders-Client" -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
-# Install Linux Subsystem - Applicable to RS1 or newer
+# Install Linux Subsystem - Applicable to RS1 or newer, not applicable to Server yet
 Function InstallLinuxSubsystem {
 	Write-Host "Installing Linux Subsystem..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 1
-	dism /online /Enable-Feature /FeatureName:Microsoft-Windows-Subsystem-Linux /Quiet /NoRestart
+	Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null
 }
 
-# Uninstall Linux Subsystem - Applicable to RS1 or newer
+# Uninstall Linux Subsystem - Applicable to RS1 or newer, not applicable to Server yet
 Function UninstallLinuxSubsystem {
 	Write-Host "Uninstalling Linux Subsystem..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowDevelopmentWithoutDevLicense" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" -Name "AllowAllTrustedApps" -Type DWord -Value 0
-	dism /online /Disable-Feature /FeatureName:Microsoft-Windows-Subsystem-Linux /Quiet /NoRestart
+	Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -NoRestart -WarningAction SilentlyContinue | Out-Null
+}
+
+# Install Hyper-V - Not applicable to Home
+Function InstallHyperV {
+	Write-Host "Installing Hyper-V..."
+	If ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
+		Install-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null
+	} Else {
+		Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null
+	}
+}
+
+# Uninstall Hyper-V - Not applicable to Home
+Function UninstallHyperV {
+	Write-Host "Uninstalling Hyper-V..."
+	If ((Get-WmiObject -Class "Win32_OperatingSystem").Caption -like "*Server*") {
+		Uninstall-WindowsFeature -Name "Hyper-V" -IncludeManagementTools -WarningAction SilentlyContinue | Out-Null
+	} Else {
+		Disable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -NoRestart -WarningAction SilentlyContinue | Out-Null
+	}
 }
 
 # Set Photo Viewer association for bmp, gif, jpg, png and tif
@@ -1325,6 +1366,88 @@ Function SetDEPOptIn {
 
 
 ##########
+# Server specific Tweaks
+##########
+
+# Hide Server Manager after login
+Function HideServerManagerOnLogin {
+	Write-Host "Hiding Server Manager after login..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Server\ServerManager")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Server\ServerManager" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Server\ServerManager" -Name "DoNotOpenAtLogon" -Type DWord -Value 1
+}
+
+# Hide Server Manager after login
+Function ShowServerManagerOnLogin {
+	Write-Host "Showing Server Manager after login..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Server\ServerManager" -Name "DoNotOpenAtLogon" -ErrorAction SilentlyContinue
+}
+
+# Disable Shutdown Event Tracker
+Function DisableShutdownTracker {
+	Write-Host "Disabling Shutdown Event Tracker..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Reliability")) {
+		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" -Force | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" -Name "ShutdownReasonOn" -Type DWord -Value 0
+}
+
+# Enable Shutdown Event Tracker
+Function EnableShutdownTracker {
+	Write-Host "Enabling Shutdown Event Tracker..."
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Reliability" -Name "ShutdownReasonOn" -ErrorAction SilentlyContinue
+}
+
+# Disable password complexity and maximum age requirements
+Function DisablePasswordPolicy {
+	Write-Host "Disabling password complexity and maximum age requirements..."
+	$tmpfile = New-TemporaryFile
+	secedit /export /cfg $tmpfile /quiet
+	(Get-Content $tmpfile).Replace("PasswordComplexity = 1", "PasswordComplexity = 0").Replace("MaximumPasswordAge = 42", "MaximumPasswordAge = -1") | Out-File $tmpfile
+	secedit /configure /db "$env:SYSTEMROOT\security\database\local.sdb" /cfg $tmpfile /areas SECURITYPOLICY | Out-Null
+	Remove-Item -Path $tmpfile
+}
+
+# Enable password complexity and maximum age requirements
+Function EnablePasswordPolicy {
+	Write-Host "Enabling password complexity and maximum age requirements..."
+	$tmpfile = New-TemporaryFile
+	secedit /export /cfg $tmpfile /quiet
+	(Get-Content $tmpfile).Replace("PasswordComplexity = 0", "PasswordComplexity = 1").Replace("MaximumPasswordAge = -1", "MaximumPasswordAge = 42") | Out-File $tmpfile
+	secedit /configure /db "$env:SYSTEMROOT\security\database\local.sdb" /cfg $tmpfile /areas SECURITYPOLICY | Out-Null
+	Remove-Item -Path $tmpfile
+}
+
+# Disable Ctrl+Alt+Del requirement before login
+Function DisableCtrlAltDelLogin {
+	Write-Host "Disabling Ctrl+Alt+Del requirement before login..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "DisableCAD" -Type DWord -Value 1
+}
+
+# Enable Ctrl+Alt+Del requirement before login
+Function EnableCtrlAltDelLogin {
+	Write-Host "Enabling Ctrl+Alt+Del requirement before login..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "DisableCAD" -Type DWord -Value 0
+}
+
+# Disable Internet Explorer Enhanced Security Configuration (IE ESC)
+Function DisableIEEnhancedSecurity {
+	Write-Host "Disabling Internet Explorer Enhanced Security Configuration (IE ESC)..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Type DWord -Value 0
+}
+
+# Enable Internet Explorer Enhanced Security Configuration (IE ESC)
+Function EnableIEEnhancedSecurity {
+	Write-Host "Enabling Internet Explorer Enhanced Security Configuration (IE ESC)..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A7-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Active Setup\Installed Components\{A509B1A8-37EF-4b3f-8CFC-4F3A74704073}" -Name "IsInstalled" -Type DWord -Value 1
+}
+
+
+
+##########
 # Auxiliary Functions
 ##########
 
@@ -1340,11 +1463,24 @@ Function Restart {
 }
 
 
-# Call the functions defined by preset
-ForEach ($line in $preset) {
-	$line = $line.Trim()
-	If ($line -eq "" -Or $line[0] -eq "#") {
-		continue
-	}
-	Invoke-Expression $line
+
+##########
+# Parse parameters and apply tweaks
+##########
+
+# Ask for elevated privileges if required
+If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $args" -WorkingDirectory $pwd -Verb RunAs
+	Exit
 }
+
+# Load function names from command line arguments or a preset file
+If ($args) {
+	$tweaks = $args
+	If ($args[0].ToLower() -eq "-preset") {
+		$tweaks = Get-Content $args[1] -ErrorAction Stop | ForEach { $_.Trim() } | Where { $_ -ne "" -and $_[0] -ne "#" }
+	}
+}
+
+# Call the desired tweak functions
+$tweaks | ForEach { Invoke-Expression $_ }
