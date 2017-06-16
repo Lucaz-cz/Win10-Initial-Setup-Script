@@ -29,7 +29,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 DisableTelemet
 Goto end
 
 :PCM40
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File Win10.ps1 -preset "pcm40.preset"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File %~dp0.\Win10.ps1 -preset "%~dp0pcm40.preset"
 Goto end
 
 :TABLET
