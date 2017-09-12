@@ -1,12 +1,15 @@
 ##########
 # Win10 / WinServer2016 Initial Setup Script
 # Author: Disassembler <disassembler@dasm.cz>
-# Version: 2.5, 2017-06-13
+# Version: v2.8, 2017-09-09
 # Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
 ##########
 
 # Default preset
 $tweaks = @(
+	### Require administrator privileges ###
+	"RequireAdmin",
+
 	### Privacy Settings ###
 	"DisableTelemetry",             # "EnableTelemetry",
 	"DisableWiFiSense",             # "EnableWiFiSense",
@@ -14,17 +17,18 @@ $tweaks = @(
 	"DisableWebSearch",             # "EnableWebSearch",
 	"DisableStartSuggestions",      # "EnableStartSuggestions",
 	"DisableLocationTracking",      # "EnableLocationTracking",
+	"DisableMapUpdates",            # "EnableMapUpdates",
 	"DisableFeedback",              # "EnableFeedback",
 	"DisableAdvertisingID",         # "EnableAdvertisingID",
 	"DisableCortana",               # "EnableCortana",
 	"DisableErrorReporting",        # "EnableErrorReporting",
-	"RestrictUpdateP2P",            # "UnrestrictUpdateP2P",
+	"SetP2PUpdateLocal",            # "SetP2PUpdateInternet",
 	"DisableAutoLogger",            # "EnableAutoLogger",
 	"DisableDiagTrack",             # "EnableDiagTrack",
 	"DisableWAPPush",               # "EnableWAPPush",
 
 	### Service Tweaks ###
-	# "LowerUAC",                   # "RaiseUAC",
+	# "SetUACLow",                  # "SetUACHigh",
 	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
 	"DisableAdminShares",           # "EnableAdminShares",
 	"DisableSMB1",                  # "EnableSMB1",
@@ -41,15 +45,22 @@ $tweaks = @(
 	"DisableAutoplay",              # "EnableAutoplay",
 	"DisableAutorun",               # "EnableAutorun",
 	# "DisableDefragmentation",     # "EnableDefragmentation",
+	# "DisableSuperfetch",          # "EnableSuperfetch",
+	# "DisableIndexing",            # "EnableIndexing",
 	# "SetBIOSTimeUTC",             # "SetBIOSTimeLocal",
+	# "EnableHibernation",          # "DisableHibernation",
+	# "DisableFastStartup",         # "EnableFastStartup",
 
 	### UI Tweaks ###
 	"DisableActionCenter",          # "EnableActionCenter",
 	"DisableLockScreen",            # "EnableLockScreen",
 	# "DisableLockScreenRS1",       # "EnableLockScreenRS1",
+	"HideNetworkFromLockScreen",    # "ShowNetworkOnLockScreen",
+	"HideShutdownFromLockScreen",   # "ShowShutdownOnLockScreen",
 	"DisableStickyKeys",            # "EnableStickyKeys",
 	"ShowTaskManagerDetails"        # "HideTaskManagerDetails",
 	"ShowFileOperationsDetails",    # "HideFileOperationsDetails",
+	# "EnableFileDeleteConfirm",    # "DisableFileDeleteConfirm",
 	"HideTaskbarSearchBox",         # "ShowTaskbarSearchBox",
 	"HideTaskView",                 # "ShowTaskView",
 	"ShowSmallTaskbarIcons",        # "ShowLargeTaskbarIcons",
@@ -60,7 +71,7 @@ $tweaks = @(
 	"ShowHiddenFiles",              # "HideHiddenFiles",
 	"HideSyncNotifications"         # "ShowSyncNotifications",
 	"HideRecentShortcuts",          # "ShowRecentShortcuts",
-	"ExplorerThisPC",               # "ExplorerQuickAccess",
+	"SetExplorerThisPC",            # "SetExplorerQuickAccess",
 	"ShowThisPCOnDesktop",          # "HideThisPCFromDesktop",
 	"HideDesktopFromThisPC",        # "ShowDesktopInThisPC",
 	"HideDocumentsFromThisPC",      # "ShowDocumentsInThisPC",
@@ -68,13 +79,17 @@ $tweaks = @(
 	"HideMusicFromThisPC",          # "ShowMusicInThisPC",
 	"HidePicturesFromThisPC",       # "ShowPicturesInThisPC",
 	"HideVideosFromThisPC",         # "ShowVideosInThisPC",
+	"SetVisualFXPerformance",       # "SetVisualFXAppearance",
+	# "DisableThumbnails",          # "EnableThumbnails",
+	"DisableThumbsDB",              # "EnableThumbsDB",
 	# "AddENKeyboard",              # "RemoveENKeyboard",
 	# "EnableNumlock",              # "DisableNumlock",
 
 	### Application Tweaks ###
 	"DisableOneDrive",              # "EnableOneDrive",
 	"UninstallOneDrive",            # "InstallOneDrive",
-	"UninstallBloatware",           # "InstallBloatware",
+	"UninstallMsftBloat",           # "InstallMsftBloat",
+	"UninstallThirdPartyBloat",     # "InstallThirdPartyBloat",
 	# "UninstallWindowsStore",      # "InstallWindowsStore",
 	"DisableConsumerApps",          # "EnableConsumerApps",
 	"DisableXboxFeatures",          # "EnableXboxFeatures",
@@ -87,7 +102,7 @@ $tweaks = @(
 	"DisableSearchAppInStore",      # "EnableSearchAppInStore",
 	"DisableNewAppPrompt",          # "EnableNewAppPrompt",
 	"EnableF8BootMenu",             # "DisableF8BootMenu",
-	# "SetDEPOptOut",               # "SetDEPOptIn",
+	"SetDEPOptOut",                 # "SetDEPOptIn",
 
 	### Server Specific Tweaks ###
 	# "HideServerManagerOnLogin",   # "ShowServerManagerOnLogin",
@@ -136,6 +151,9 @@ Function DisableWiFiSense {
 # Enable Wi-Fi Sense
 Function EnableWiFiSense {
 	Write-Host "Enabling Wi-Fi Sense..."
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
+		New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null
+	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -Type DWord -Value 1
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 1
 }
@@ -208,6 +226,18 @@ Function EnableLocationTracking {
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 1
 }
 
+# Disable automatic Maps updates
+Function DisableMapUpdates {
+	Write-Host "Disabling automatic Maps updates..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 0
+}
+
+# Enable automatic Maps updates
+Function EnableMapUpdates {
+	Write-Host "Enable automatic Maps updates..."
+	Remove-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -ErrorAction SilentlyContinue
+}
+
 # Disable Feedback
 Function DisableFeedback {
 	Write-Host "Disabling Feedback..."
@@ -264,6 +294,9 @@ Function DisableCortana {
 Function EnableCortana {
 	Write-Host "Enabling Cortana..."
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -ErrorAction SilentlyContinue
+	If (!(Test-Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore")) {
+		New-Item -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Force | Out-Null
+	}
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Type DWord -Value 0
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -ErrorAction SilentlyContinue
@@ -283,7 +316,7 @@ Function EnableErrorReporting {
 }
 
 # Restrict Windows Update P2P only to local network
-Function RestrictUpdateP2P {
+Function SetP2PUpdateLocal {
 	Write-Host "Restricting Windows Update P2P only to local network..."
 	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
 		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
@@ -296,7 +329,7 @@ Function RestrictUpdateP2P {
 }
 
 # Unrestrict Windows Update P2P
-Function UnrestrictUpdateP2P {
+Function SetP2PUpdateInternet {
 	Write-Host "Unrestricting Windows Update P2P to internet..."
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -ErrorAction SilentlyContinue
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization" -Name "SystemSettingsDownloadMode" -ErrorAction SilentlyContinue
@@ -322,7 +355,7 @@ Function EnableAutoLogger {
 # Stop and disable Diagnostics Tracking Service
 Function DisableDiagTrack {
 	Write-Host "Stopping and disabling Diagnostics Tracking Service..."
-	Stop-Service "DiagTrack"
+	Stop-Service "DiagTrack" -WarningAction SilentlyContinue
 	Set-Service "DiagTrack" -StartupType Disabled
 }
 
@@ -330,13 +363,13 @@ Function DisableDiagTrack {
 Function EnableDiagTrack {
 	Write-Host "Enabling and starting Diagnostics Tracking Service..."
 	Set-Service "DiagTrack" -StartupType Automatic
-	Start-Service "DiagTrack"
+	Start-Service "DiagTrack" -WarningAction SilentlyContinue
 }
 
 # Stop and disable WAP Push Service
 Function DisableWAPPush {
 	Write-Host "Stopping and disabling WAP Push Service..."
-	Stop-Service "dmwappushservice"
+	Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
 	Set-Service "dmwappushservice" -StartupType Disabled
 }
 
@@ -344,7 +377,7 @@ Function DisableWAPPush {
 Function EnableWAPPush {
 	Write-Host "Enabling and starting WAP Push Service..."
 	Set-Service "dmwappushservice" -StartupType Automatic
-	Start-Service "dmwappushservice"
+	Start-Service "dmwappushservice" -WarningAction SilentlyContinue
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\dmwappushservice" -Name "DelayedAutoStart" -Type DWord -Value 1
 }
 
@@ -354,15 +387,15 @@ Function EnableWAPPush {
 # Service Tweaks
 ##########
 
-# Lower UAC level
-Function LowerUAC {
+# Lower UAC level (disabling it completely would break apps)
+Function SetUACLow {
 	Write-Host "Lowering UAC level..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 0
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Type DWord -Value 0
 }
 
 # Raise UAC level
-Function RaiseUAC {
+Function SetUACHigh {
 	Write-Host "Raising UAC level..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Type DWord -Value 5
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Type DWord -Value 1
@@ -498,26 +531,26 @@ Function EnableUpdateDriver {
 # Disable Windows Update automatic restart
 Function DisableUpdateRestart {
 	Write-Host "Disabling Windows Update automatic restart..."
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 1
 	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU")) {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
 	}
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUPowerManagement" -Type DWord -Value 0
 }
 
 # Enable Windows Update automatic restart
 Function EnableUpdateRestart {
 	Write-Host "Enabling Windows Update automatic restart..."
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "UxOption" -Type DWord -Value 0
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUPowerManagement" -ErrorAction SilentlyContinue
 }
 
 # Stop and disable Home Groups services - Not applicable to Server
 Function DisableHomeGroups {
 	Write-Host "Stopping and disabling Home Groups services..."
-	Stop-Service "HomeGroupListener"
+	Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
 	Set-Service "HomeGroupListener" -StartupType Disabled
-	Stop-Service "HomeGroupProvider"
+	Stop-Service "HomeGroupProvider" -WarningAction SilentlyContinue
 	Set-Service "HomeGroupProvider" -StartupType Disabled
 }
 
@@ -526,7 +559,7 @@ Function EnableHomeGroups {
 	Write-Host "Starting and enabling Home Groups services..."
 	Set-Service "HomeGroupListener" -StartupType Manual
 	Set-Service "HomeGroupProvider" -StartupType Manual
-	Start-Service "HomeGroupProvider"
+	Start-Service "HomeGroupProvider" -WarningAction SilentlyContinue
 }
 
 # Disable Remote Assistance - Not applicable to Server (unless Remote Assistance is explicitly installed)
@@ -582,16 +615,45 @@ Function EnableAutorun {
 	Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoDriveTypeAutoRun" -ErrorAction SilentlyContinue
 }
 
-# Disable scheduled defragmentation
+# Disable scheduled defragmentation task
 Function DisableDefragmentation {
 	Write-Host "Disabling scheduled defragmentation..."
 	Disable-ScheduledTask -TaskName "\Microsoft\Windows\Defrag\ScheduledDefrag" | Out-Null
 }
 
-# Enable scheduled defragmentation
+# Enable scheduled defragmentation task
 Function EnableDefragmentation {
 	Write-Host "Enabling scheduled defragmentation..."
 	Enable-ScheduledTask -TaskName "\Microsoft\Windows\Defrag\ScheduledDefrag" | Out-Null
+}
+
+# Stop and disable Superfetch service - Not applicable to Server
+Function DisableSuperfetch {
+	Write-Host "Stopping and disabling Superfetch service..."
+	Stop-Service "SysMain" -WarningAction SilentlyContinue
+	Set-Service "SysMain" -StartupType Disabled
+}
+
+# Start and enable Superfetch service - Not applicable to Server
+Function EnableSuperfetch {
+	Write-Host "Starting and enabling Superfetch service..."
+	Set-Service "SysMain" -StartupType Automatic
+	Start-Service "SysMain" -WarningAction SilentlyContinue
+}
+
+# Stop and disable Windows Search indexing service
+Function DisableIndexing {
+	Write-Host "Stopping and disabling Windows Search indexing service..."
+	Stop-Service "WSearch" -WarningAction SilentlyContinue
+	Set-Service "WSearch" -StartupType Disabled
+}
+
+# Start and enable Windows Search indexing service
+Function EnableIndexing {
+	Write-Host "Starting and enabling Windows Search indexing service..."
+	Set-Service "WSearch" -StartupType Automatic
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\WSearch" -Name "DelayedAutoStart" -Type DWord -Value 1
+	Start-Service "WSearch" -WarningAction SilentlyContinue
 }
 
 # Set BIOS time to UTC
@@ -604,6 +666,38 @@ Function SetBIOSTimeUTC {
 Function SetBIOSTimeLocal {
 	Write-Host "Setting BIOS time to Local time..."
 	Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -ErrorAction SilentlyContinue
+}
+
+# Enable Hibernation - Do not use on Server with automatically started Hyper-V hvboot service as it may lead to BSODs (Win10 with Hyper-V is fine)
+Function EnableHibernation {
+	Write-Host "Enabling Hibernation..."
+	Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernteEnabled" -Type Dword -Value 1
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
+		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 1
+}
+
+# Disable Hibernation
+Function DisableHibernation {
+	Write-Host "Disabling Hibernation..."
+	Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernteEnabled" -Type Dword -Value 0
+	If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
+		New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" | Out-Null
+	}
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 0
+}
+
+# Disable Fast Startup
+Function DisableFastStartup {
+	Write-Host "Disabling Fast Startup..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0
+}
+
+# Enable Fast Startup
+Function EnableFastStartup {
+	Write-Host "Enabling Fast Startup..."
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 1
 }
 
 
@@ -666,6 +760,30 @@ Function EnableLockScreenRS1 {
 	Unregister-ScheduledTask -TaskName "Disable LockScreen" -Confirm:$false -ErrorAction SilentlyContinue
 }
 
+# Hide network options from Lock Screen
+Function HideNetworkFromLockScreen {
+	Write-Host "Hiding network options from Lock Screen..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "DontDisplayNetworkSelectionUI" -Type DWord -Value 1
+}
+
+# Show network options on lock screen
+Function ShowNetworkOnLockScreen {
+	Write-Host "Showing network options on Lock Screen..."
+	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "DontDisplayNetworkSelectionUI" -ErrorAction SilentlyContinue
+}
+
+# Hide shutdown options from Lock Screen
+Function HideShutdownFromLockScreen {
+	Write-Host "Hiding shutdown options from Lock Screen..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ShutdownWithoutLogon" -Type DWord -Value 0
+}
+
+# Show shutdown options on lock screen
+Function ShowShutdownOnLockScreen {
+	Write-Host "Showing shutdown options on Lock Screen..."
+	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ShutdownWithoutLogon" -Type DWord -Value 1
+}
+
 # Disable Sticky keys prompt
 Function DisableStickyKeys {
 	Write-Host "Disabling Sticky keys prompt..."
@@ -720,6 +838,21 @@ Function ShowFileOperationsDetails {
 Function HideFileOperationsDetails {
 	Write-Host "Hiding file operations details..."
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -ErrorAction SilentlyContinue
+}
+
+# Enable file delete confirmation dialog
+Function EnableFileDeleteConfirm {
+	Write-Host "Enabling file delete confirmation dialog..."
+	If (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
+		New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" | Out-Null
+	}
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -Type DWord -Value 1
+}
+
+# Disable file delete confirmation dialog
+Function DisableFileDeleteConfirm {
+	Write-Host "Disabling file delete confirmation dialog..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "ConfirmFileDelete" -ErrorAction SilentlyContinue
 }
 
 # Hide Taskbar Search button / box
@@ -848,13 +981,13 @@ Function ShowRecentShortcuts {
 }
 
 # Change default Explorer view to This PC
-Function ExplorerThisPC {
+Function SetExplorerThisPC {
 	Write-Host "Changing default Explorer view to This PC..."
 	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
 }
 
 # Change default Explorer view to Quick Access
-Function ExplorerQuickAccess {
+Function SetExplorerQuickAccess {
 	Write-Host "Changing default Explorer view to Quick Access..."
 	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -ErrorAction SilentlyContinue
 }
@@ -963,6 +1096,62 @@ Function ShowVideosInThisPC {
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Explorer\FolderDescriptions\{35286a68-3c57-41a1-bbb1-0eae73d76c95}\PropertyBag" -Name "ThisPCPolicy" -Type String -Value "Show"
 }
 
+# Adjusts visual effects for performance - Disables animations, transparency etc. but leaves font smoothing and miniatures enabled
+Function SetVisualFXPerformance {
+	Write-Host "Adjusting visual effects for performance..."
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "DragFullWindows" -Type String -Value 0
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type String -Value 0
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](0x90,0x12,0x03,0x80,0x10,0x00,0x00,0x00))
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Type String -Value 0
+	Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "KeyboardDelay" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewAlphaSelect" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewShadow" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAnimations" -Type DWord -Value 0
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 3
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 0
+}
+
+# Adjusts visual effects for appearance
+Function SetVisualFXAppearance {
+	Write-Host "Adjusting visual effects for appearance..."
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "DragFullWindows" -Type String -Value 1
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type String -Value 400
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "UserPreferencesMask" -Type Binary -Value ([byte[]](0x9E,0x1E,0x07,0x80,0x12,0x00,0x00,0x00))
+	Set-ItemProperty -Path "HKCU:\Control Panel\Desktop\WindowMetrics" -Name "MinAnimate" -Type String -Value 1
+	Set-ItemProperty -Path "HKCU:\Control Panel\Keyboard" -Name "KeyboardDelay" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewAlphaSelect" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ListviewShadow" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAnimations" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" -Name "VisualFXSetting" -Type DWord -Value 3
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\DWM" -Name "EnableAeroPeek" -Type DWord -Value 1
+}
+
+# Disable thumbnails, show only file extension icons
+Function DisableThumbnails {
+	Write-Host "Disabling thumbnails..."
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Type DWord -Value 1
+}
+
+# Enable thumbnails
+Function EnableThumbnails {
+	Write-Host "Enabling thumbnails..."
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "IconsOnly" -Type DWord -Value 0
+}
+
+# Disable creation of Thumbs.db thumbnail cache files
+Function DisableThumbsDB {
+	Write-Host "Disabling creation of Thumbs.db..."
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -Type DWord -Value 1
+	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbsDBOnNetworkFolders" -Type DWord -Value 1
+}
+
+# Enable creation of Thumbs.db thumbnail cache files
+Function EnableThumbsDB {
+	Write-Host "Enable creation of Thumbs.db..."
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbnailCache" -ErrorAction SilentlyContinue
+	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "DisableThumbsDBOnNetworkFolders" -ErrorAction SilentlyContinue
+}
+
 # Add secondary en-US keyboard
 Function AddENKeyboard {
 	Write-Host "Adding secondary en-US keyboard..."
@@ -1062,51 +1251,65 @@ Function InstallOneDrive {
 }
 
 # Uninstall default Microsoft applications
-Function UninstallBloatware {
+Function UninstallMsftBloat {
 	Write-Host "Uninstalling default Microsoft applications..."
+	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Getstarted" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
+	Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneVideo" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ConnectivityStore" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Office.Sway" | Remove-AppxPackage
-	Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage
-	Get-AppxPackage "4DF9E0F8.Netflix" | Remove-AppxPackage
-	Get-AppxPackage "D52A8D61.FarmVille2CountryEscape" | Remove-AppxPackage
-	Get-AppxPackage "GAMELOFTSA.Asphalt8Airborne" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MinecraftUWP" | Remove-AppxPackage
-	Get-AppxPackage "flaregamesGmbH.RoyalRevolt2" | Remove-AppxPackage
-	Get-AppxPackage "ActiproSoftwareLLC.562882FEEB491" | Remove-AppxPackage
-	Get-AppxPackage "D5EA27B7.Duolingo-LearnLanguagesforFree" | Remove-AppxPackage
-	Get-AppxPackage "Facebook.Facebook" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.MicrosoftPowerBIForWindows" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
+	Get-AppxPackage "Microsoft.RemoteDesktop" | Remove-AppxPackage
 }
 
 # Install default Microsoft applications
-Function InstallBloatware {
+Function InstallMsftBloat {
 	Write-Host "Installing default Microsoft applications..."
-	Get-AppxPackage -AllUsers "Microsoft.3DBuilder" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.3DBuilder" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.BingFinance" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.BingNews" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.BingSports" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.BingWeather" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.BingWeather" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.Getstarted" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.MicrosoftOfficeHub" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.MicrosoftSolitaireCollection" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.Office.OneNote" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.People" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.SkypeApp" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.Windows.Photos" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.WindowsAlarms" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.WindowsCamera" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.MicrosoftSolitaireCollection" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.Office.OneNote" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.People" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.SkypeApp" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.Windows.Photos" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.WindowsAlarms" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.WindowsCamera" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.windowscommunicationsapps" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.WindowsMaps" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.WindowsMaps" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.WindowsPhone" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.WindowsSoundRecorder" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.WindowsSoundRecorder" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.ZuneMusic" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.ZuneVideo" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.AppConnector" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
@@ -1114,28 +1317,15 @@ Function InstallBloatware {
 	Get-AppxPackage -AllUsers "Microsoft.Office.Sway" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.Messaging" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.CommsPhone" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "9E2F88E3.Twitter" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "king.com.CandyCrushSodaSaga" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "4DF9E0F8.Netflix" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Drawboard.DrawboardPDF" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.MicrosoftStickyNotes" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.OneConnect" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "D52A8D61.FarmVille2CountryEscape" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "GAMELOFTSA.Asphalt8Airborne" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.MicrosoftStickyNotes" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.OneConnect" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.WindowsFeedbackHub" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.MinecraftUWP" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "flaregamesGmbH.RoyalRevolt2" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "AdobeSystemsIncorporated.AdobePhotoshopExpress" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "ActiproSoftwareLLC.562882FEEB491" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "D5EA27B7.Duolingo-LearnLanguagesforFree" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Facebook.Facebook" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "46928bounde.EclipseManager" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "A278AB0D.MarchofEmpires" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 	Get-AppxPackage -AllUsers "Microsoft.MicrosoftPowerBIForWindows" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.NetworkSpeedTest" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.MSPaint" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.Microsoft3DViewer" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
-	Get-AppxPackage -AllUsers "Microsoft.RemoteDesktop" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.NetworkSpeedTest" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.MSPaint" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.Microsoft3DViewer" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+#	Get-AppxPackage -AllUsers "Microsoft.RemoteDesktop" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
 }
 # In case you have removed them for good, you can try to restore the files using installation medium as follows
 # New-Item C:\Mnt -Type Directory | Out-Null
@@ -1143,6 +1333,50 @@ Function InstallBloatware {
 # robocopy /S /SEC /R:0 "C:\Mnt\Program Files\WindowsApps" "C:\Program Files\WindowsApps"
 # dism /Unmount-Image /Discard /MountDir:C:\Mnt
 # Remove-Item -Path C:\Mnt -Recurse
+
+# Uninstall default third party applications
+function UninstallThirdPartyBloat {
+	Write-Host "Uninstalling default third party applications..."
+	Get-AppxPackage "9E2F88E3.Twitter" | Remove-AppxPackage
+	Get-AppxPackage "king.com.CandyCrushSodaSaga" | Remove-AppxPackage
+	Get-AppxPackage "4DF9E0F8.Netflix" | Remove-AppxPackage
+	Get-AppxPackage "Drawboard.DrawboardPDF" | Remove-AppxPackage
+	Get-AppxPackage "D52A8D61.FarmVille2CountryEscape" | Remove-AppxPackage
+	Get-AppxPackage "GAMELOFTSA.Asphalt8Airborne" | Remove-AppxPackage
+	Get-AppxPackage "flaregamesGmbH.RoyalRevolt2" | Remove-AppxPackage
+	Get-AppxPackage "AdobeSystemsIncorporated.AdobePhotoshopExpress" | Remove-AppxPackage
+	Get-AppxPackage "ActiproSoftwareLLC.562882FEEB491" | Remove-AppxPackage
+	Get-AppxPackage "D5EA27B7.Duolingo-LearnLanguagesforFree" | Remove-AppxPackage
+	Get-AppxPackage "Facebook.Facebook" | Remove-AppxPackage
+	Get-AppxPackage "46928bounde.EclipseManager" | Remove-AppxPackage
+	Get-AppxPackage "A278AB0D.MarchofEmpires" | Remove-AppxPackage
+	Get-AppxPackage "KeeperSecurityInc.Keeper" | Remove-AppxPackage
+	Get-AppxPackage "king.com.BubbleWitch3Saga" | Remove-AppxPackage
+	Get-AppxPackage "89006A2E.AutodeskSketchBook" | Remove-AppxPackage
+	Get-AppxPackage "CAF9E577.Plex" | Remove-AppxPackage
+}
+
+# Install default third party applications
+Function InstallThirdPartyBloat {
+	Write-Host "Installing default third party applications..."
+	Get-AppxPackage -AllUsers "9E2F88E3.Twitter" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "king.com.CandyCrushSodaSaga" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "4DF9E0F8.Netflix" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "Drawboard.DrawboardPDF" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "D52A8D61.FarmVille2CountryEscape" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "GAMELOFTSA.Asphalt8Airborne" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "flaregamesGmbH.RoyalRevolt2" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "AdobeSystemsIncorporated.AdobePhotoshopExpress" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "ActiproSoftwareLLC.562882FEEB491" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "D5EA27B7.Duolingo-LearnLanguagesforFree" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "Facebook.Facebook" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "46928bounde.EclipseManager" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "A278AB0D.MarchofEmpires" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "KeeperSecurityInc.Keeper" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "king.com.BubbleWitch3Saga" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "89006A2E.AutodeskSketchBook" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+	Get-AppxPackage -AllUsers "CAF9E577.Plex" | ForEach {Add-AppxPackage -DisableDevelopmentMode -Register "$($_.InstallLocation)\AppXManifest.xml"}
+}
 
 # Uninstall Windows Store
 Function UninstallWindowsStore {
@@ -1451,12 +1685,23 @@ Function EnableIEEnhancedSecurity {
 # Auxiliary Functions
 ##########
 
+# Relaunch the script with administrator privileges
+$PSCommandArgs = $args
+Function RequireAdmin {
+	If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
+		Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $PSCommandArgs" -WorkingDirectory $pwd -Verb RunAs
+		Exit
+	}
+}
+
+# Wait for key press
 Function WaitForKey {
 	Write-Host
 	Write-Host "Press any key to continue..." -ForegroundColor Black -BackgroundColor White
 	[Console]::ReadKey($true) | Out-Null
 }
 
+# Restart computer
 Function Restart {
 	Write-Host "Restarting..."
 	Restart-Computer
@@ -1468,17 +1713,11 @@ Function Restart {
 # Parse parameters and apply tweaks
 ##########
 
-# Ask for elevated privileges if required
-If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`" $args" -WorkingDirectory $pwd -Verb RunAs
-	Exit
-}
-
 # Load function names from command line arguments or a preset file
 If ($args) {
 	$tweaks = $args
 	If ($args[0].ToLower() -eq "-preset") {
-		$tweaks = Get-Content $args[1] -ErrorAction Stop | ForEach { $_.Trim() } | Where { $_ -ne "" -and $_[0] -ne "#" }
+		$tweaks = Get-Content "$($args | Select-Object -Skip 1)" -ErrorAction Stop | ForEach { $_.Trim() } | Where { $_ -ne "" -and $_[0] -ne "#" }
 	}
 }
 
