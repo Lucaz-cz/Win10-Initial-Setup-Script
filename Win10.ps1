@@ -1,5 +1,6 @@
 ##########
 # Win10 / WinServer2016 Initial Setup Script
+
 # Author: Disassembler <disassembler@dasm.cz>
 # Version: v2.8, 2017-09-09
 # Source: https://github.com/Disassembler0/Win10-Initial-Setup-Script
@@ -52,7 +53,7 @@ $tweaks = @(
 	# "DisableFastStartup",         # "EnableFastStartup",
 
 	### UI Tweaks ###
-	"DisableActionCenter",          # "EnableActionCenter",
+	#"DisableActionCenter",          # "EnableActionCenter",
 	"DisableLockScreen",            # "EnableLockScreen",
 	# "DisableLockScreenRS1",       # "EnableLockScreenRS1",
 	"HideNetworkFromLockScreen",    # "ShowNetworkOnLockScreen",
@@ -83,7 +84,7 @@ $tweaks = @(
 	# "DisableThumbnails",          # "EnableThumbnails",
 	"DisableThumbsDB",              # "EnableThumbsDB",
 	# "AddENKeyboard",              # "RemoveENKeyboard",
-	# "EnableNumlock",              # "DisableNumlock",
+	"EnableNumlock",              # "DisableNumlock",
 
 	### Application Tweaks ###
 	"DisableOneDrive",              # "EnableOneDrive",
@@ -578,7 +579,7 @@ Function EnableRemoteAssistance {
 Function EnableRemoteDesktop {
 	Write-Host "Enabling Remote Desktop w/o Network Level Authentication..."
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
+#	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Type DWord -Value 0
 }
 
 # Disable Remote Desktop
@@ -1253,24 +1254,24 @@ Function InstallOneDrive {
 # Uninstall default Microsoft applications
 Function UninstallMsftBloat {
 	Write-Host "Uninstalling default Microsoft applications..."
-	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.3DBuilder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingFinance" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingNews" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.BingSports" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage
+# Get-AppxPackage "Microsoft.BingWeather" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Getstarted" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
+# Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
 	Get-AppxPackage "microsoft.windowscommunicationsapps" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsMaps" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsPhone" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.WindowsSoundRecorder" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneMusic" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ZuneVideo" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage
@@ -1283,10 +1284,10 @@ Function UninstallMsftBloat {
 	Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MinecraftUWP" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftPowerBIForWindows" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.RemoteDesktop" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.NetworkSpeedTest" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.MSPaint" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.Microsoft3DViewer" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.RemoteDesktop" | Remove-AppxPackage
 }
 
 # Install default Microsoft applications
