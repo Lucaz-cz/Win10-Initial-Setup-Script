@@ -1277,8 +1277,8 @@ Function UninstallMsftBloat {
 	Get-AppxPackage "Microsoft.AppConnector" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.ConnectivityStore" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.Office.Sway" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
