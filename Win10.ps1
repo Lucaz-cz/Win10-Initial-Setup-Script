@@ -1263,8 +1263,8 @@ Function UninstallMsftBloat {
 	Get-AppxPackage "Microsoft.MicrosoftOfficeHub" | Remove-AppxPackage
 # Get-AppxPackage "Microsoft.MicrosoftSolitaireCollection" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.Office.OneNote" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.People" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.SkypeApp" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.Windows.Photos" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.WindowsAlarms" | Remove-AppxPackage
 #	Get-AppxPackage "Microsoft.WindowsCamera" | Remove-AppxPackage
@@ -1280,7 +1280,7 @@ Function UninstallMsftBloat {
 	Get-AppxPackage "Microsoft.Messaging" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.CommsPhone" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftStickyNotes" | Remove-AppxPackage
-	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
+#	Get-AppxPackage "Microsoft.OneConnect" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.WindowsFeedbackHub" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MinecraftUWP" | Remove-AppxPackage
 	Get-AppxPackage "Microsoft.MicrosoftPowerBIForWindows" | Remove-AppxPackage
