@@ -1,5 +1,7 @@
 # Windows 10 - M40
 
+RequireAdmin
+
 DisableTelemetry
 DisableWiFiSense
 DisableSmartScreen
@@ -16,7 +18,7 @@ DisableDiagTrack
 DisableWAPPush
 
 
-DisableSMB1
+#DisableSMB1
 EnableRemoteDesktop
 SetCurrentNetworkPrivate
 SetUnknownNetworksPrivate
