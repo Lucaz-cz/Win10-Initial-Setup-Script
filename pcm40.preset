@@ -4,19 +4,19 @@ RequireAdmin
 
 DisableTelemetry
 DisableWiFiSense
-DisableSmartScreen
+# DisableSmartScreen
 DisableWebSearch
 DisableStartSuggestions
 DisableLocationTracking
+DisableMapUpdates
 DisableFeedback
 DisableAdvertisingID
-DisableCortana
+DisableCortan
 DisableErrorReporting
-RestrictUpdateP2P
+SetP2PUpdateLocal
 DisableAutoLogger
 DisableDiagTrack
 DisableWAPPush
-
 
 #DisableSMB1
 EnableRemoteDesktop
@@ -25,12 +25,13 @@ SetUnknownNetworksPrivate
 DisableUpdateDriver
 DisableUpdateRestart
 DisableHomeGroups
+DisableSharedExperiences
 DisableRemoteAssistance
 DisableAutoplay
 DisableAutorun
 #SetBIOSTimeUTC
 
-
+Hide3DObjectsFromThisPC
 DisableStickyKeys
 ShowTaskManagerDetails
 ShowFileOperationsDetails
