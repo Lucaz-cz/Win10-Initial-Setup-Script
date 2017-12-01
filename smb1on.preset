@@ -1,0 +1,9 @@
+# Windows 10 - Tablet
+
+RequireAdmin
+
+EnableSMB1
+
+
+WaitForKey
+Restart
