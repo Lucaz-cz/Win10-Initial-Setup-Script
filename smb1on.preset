@@ -1,9 +1,8 @@
-# Windows 10 - Tablet
+# Windows 10 - SMB1on
 
 RequireAdmin
 
 EnableSMB1
-
 
 WaitForKey
 Restart
