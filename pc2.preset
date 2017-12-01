@@ -6,9 +6,11 @@ DisableTelemetry
 DisableWiFiSense
 DisableSmartScreen
 DisableWebSearch
-DisableStartSuggestions
+DisableAppSuggestions
+DisableBackgroundApps
+DisableLockScreenSpotlight
 DisableLocationTracking
-#DisableMapUpdates
+DisableMapUpdates
 DisableFeedback
 DisableAdvertisingID
 DisableCortana
@@ -18,16 +20,15 @@ DisableAutoLogger
 DisableDiagTrack
 DisableWAPPush
 
-DisableUpdateRestart
-DisableHomeGroups
-DisableRemoteAssistance
-EnableRemoteDesktop
 
+DisableStickyKeys
+ShowTaskManagerDetails
+ShowFileOperationsDetails
+ShowKnownExtensions
 EnableNumlock
 
-AddPhotoViewerOpenWith
 EnableF8BootMenu
-#SetDEPOptOut
+
 
 WaitForKey
 Restart

@@ -1,4 +1,4 @@
-# Windows 10 - PC1
+# Windows 10 - Apply all
 
 RequireAdmin
 
@@ -6,9 +6,11 @@ DisableTelemetry
 DisableWiFiSense
 DisableSmartScreen
 DisableWebSearch
-DisableStartSuggestions
+DisableAppSuggestions
+DisableBackgroundApps
+DisableLockScreenSpotlight
 DisableLocationTracking
-#DisableMapUpdates
+DisableMapUpdates
 DisableFeedback
 DisableAdvertisingID
 DisableCortana
@@ -18,16 +20,18 @@ DisableAutoLogger
 DisableDiagTrack
 DisableWAPPush
 
-#SetUACLow
-#EnableSharingMappedDrives
-#DisableAdminShares
-#DisableSMB1
-SetCurrentNetworkPrivate
-#SetUnknownNetworksPrivate
-DisableFirewall
-DisableDefender
-DisableUpdateMSRT
-#DisableUpdateDriver
+# SetUACLow
+# EnableSharingMappedDrives
+# DisableAdminShares
+# DisableSMB1
+# SetCurrentNetworkPrivate
+# SetUnknownNetworksPrivate
+# EnableCtrldFolderAccess
+# DisableFirewall
+# DisableDefender
+# DisableDefenderCloud
+# DisableUpdateMSRT
+# DisableUpdateDriver
 DisableUpdateRestart
 DisableHomeGroups
 DisableSharedExperiences
@@ -35,63 +39,66 @@ DisableRemoteAssistance
 EnableRemoteDesktop
 DisableAutoplay
 DisableAutorun
-#DisableDefragmentation
+# EnableStorageSense
+# DisableDefragmentation
 DisableSuperfetch
-#DisableIndexing
-#SetBIOSTimeUTC
-#EnableHibernation
-#DisableFastStartup
+# DisableIndexing
+# SetBIOSTimeUTC
+# EnableHibernation
+# DisableFastStartup
 
-#DisableActionCenter
-#DisableLockScreen
-#DisableLockScreenRS1
-#HideNetworkFromLockScreen
-#HideShutdownFromLockScreen
+# DisableActionCenter
+# DisableLockScreen
+# DisableLockScreenRS1
+# HideNetworkFromLockScreen
+# HideShutdownFromLockScreen
 DisableStickyKeys
 ShowTaskManagerDetails
 ShowFileOperationsDetails
-EnableFileDeleteConfirm
-#HideTaskbarSearchBox
-#HideTaskView
-#ShowSmallTaskbarIcons
-#ShowTaskbarTitles
-#HideTaskbarPeopleIcon
-#ShowTrayIcons
+# EnableFileDeleteConfirm
+# HideTaskbarSearchBox
+# HideTaskView
+# ShowSmallTaskbarIcons
+# ShowTaskbarTitles
+# HideTaskbarPeopleIcon
+# ShowTrayIcons
 ShowKnownExtensions
 ShowHiddenFiles
-#HideSyncNotifications
+# HideSyncNotifications
 HideRecentShortcuts
 SetExplorerThisPC
 ShowThisPCOnDesktop
+ShowUserFolderOnDesktop
 HideDesktopFromThisPC
 HideDocumentsFromThisPC
 HideDownloadsFromThisPC
 HideMusicFromThisPC
 HidePicturesFromThisPC
 HideVideosFromThisPC
-#SetVisualFXPerformance
-#DisableThumbnails
-#DisableThumbsDB
-#AddENKeyboard
+Hide3DObjectsFromThisPC
+SetVisualFXPerformance
+# DisableThumbnails
+# DisableThumbsDB
+# AddENKeyboard
 EnableNumlock
 
 DisableOneDrive
 UninstallOneDrive
 UninstallMsftBloat
 UninstallThirdPartyBloat
-#UninstallWindowsStore
-DisableConsumerApps
+# UninstallWindowsStore
 DisableXboxFeatures
-UninstallMediaPlayer
-#UninstallWorkFolders
-#InstallLinuxSubsystem
-#InstallHyperV
+DisableAdobeFlash
+# UninstallMediaPlayer
+# UninstallWorkFolders
+# InstallLinuxSubsystem
+# InstallHyperV
 SetPhotoViewerAssociation
 AddPhotoViewerOpenWith
 DisableSearchAppInStore
 DisableNewAppPrompt
 EnableF8BootMenu
-#SetDEPOptOut
+# SetDEPOptOut
 
 # HideServerManagerOnLogin
 # DisableShutdownTracker
