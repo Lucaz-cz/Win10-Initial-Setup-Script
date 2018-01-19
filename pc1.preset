@@ -76,7 +76,7 @@ HideMusicFromThisPC
 HidePicturesFromThisPC
 HideVideosFromThisPC
 Hide3DObjectsFromThisPC
-SetVisualFXPerformance
+# SetVisualFXPerformance
 # DisableThumbnails
 # DisableThumbsDB
 # AddENKeyboard
