@@ -1,12 +1,10 @@
-# Windows 10 - M40
+# Windows 10 - Apply all
 
-### Require administrator privileges ###
-"RequireAdmin",
+RequireAdmin
 
-### Privacy Tweaks ###
 DisableTelemetry
 DisableWiFiSense
-# "DisableSmartScreen
+DisableSmartScreen
 DisableWebSearch
 DisableAppSuggestions
 DisableBackgroundApps
@@ -22,67 +20,67 @@ DisableAutoLogger
 DisableDiagTrack
 DisableWAPPush
 
-### Security Tweaks ###
-# EnableSharingMappedDrives
-# DisableAdminShares
+SetUACLow
+EnableSharingMappedDrives
+DisableAdminShares
 # DisableSMB1
 SetCurrentNetworkPrivate
 SetUnknownNetworksPrivate
 DisableNetDevicesAutoInst
-# EnableCtrldFolderAccess
-# DisableFirewall
-# DisableDefender
-# DisableDefenderCloud
+EnableCtrldFolderAccess
+DisableFirewall
+DisableDefender
+DisableDefenderCloud
 EnableF8BootMenu
 SetDEPOptOut
-# DisableScriptHost
-# EnableMeltdownCompatFlag
+DisableScriptHost
+EnableMeltdownCompatFlag
 
-# DisableUpdateMSRT
+DisableUpdateMSRT
 DisableUpdateDriver
 DisableUpdateRestart
 DisableHomeGroups
 DisableSharedExperiences
 DisableRemoteAssistance
-# EnableRemoteDesktop
+EnableRemoteDesktop
 DisableAutoplay
 DisableAutorun
-# EnableStorageSense
-# DisableDefragmentation
-# DisableSuperfetch
-# DisableIndexing
-# SetBIOSTimeUTC
-# EnableHibernation
+EnableStorageSense
+DisableDefragmentation
+DisableSuperfetch
+DisableIndexing
+SetBIOSTimeUTC
+EnableHibernation
 DisableSleepButton
 DisableSleepTimeout
 DisableFastStartup
 
-# DisableActionCenter
-# DisableLockScreen
-# DisableLockScreenRS1
-# HideNetworkFromLockScreen
-# HideShutdownFromLockScreen
+DisableActionCenter
+DisableLockScreen
+DisableLockScreenRS1
+HideNetworkFromLockScreen
+HideShutdownFromLockScreen
 DisableStickyKeys
 ShowTaskManagerDetails
 ShowFileOperationsDetails
 EnableFileDeleteConfirm
-# HideTaskbarSearchBox
-# HideTaskView
-# ShowSmallTaskbarIcons
-# ShowTaskbarTitles
+HideTaskbarSearchBox
+HideTaskView
+ShowSmallTaskbarIcons
+ShowTaskbarTitles
 HideTaskbarPeopleIcon
-# ShowTrayIcons
+ShowTrayIcons
 DisableSearchAppInStore
 DisableNewAppPrompt
 SetControlPanelViewIcons
-# SetVisualFXPerformance
-# AddENKeyboard
+SetVisualFXPerformance
+AddENKeyboard
 EnableNumlock
 
 ShowKnownExtensions
-# ShowHiddenFiles
-# HideSyncNotifications
-# HideRecentShortcuts
+ShowHiddenFiles
+HideSyncNotifications
+HideRecentShortcuts
 SetExplorerThisPC
 ShowThisPCOnDesktop
 ShowUserFolderOnDesktop
@@ -100,25 +98,25 @@ HideVideosFromThisPC
 HideVideosFromExplorer
 Hide3DObjectsFromThisPC
 Hide3DObjectsFromExplorer
-# DisableThumbnails
-# DisableThumbsDB
+DisableThumbnails
+DisableThumbsDB
 
-# DisableOneDrive
-# UninstallOneDrive
+DisableOneDrive
+UninstallOneDrive
 UninstallMsftBloat
 UninstallThirdPartyBloat
-# UninstallWindowsStore
+UninstallWindowsStore
 DisableXboxFeatures
 DisableAdobeFlash
 UninstallMediaPlayer
-# UninstallWorkFolders
-# InstallLinuxSubsystem
-# InstallHyperV
+UninstallWorkFolders
+InstallLinuxSubsystem
+InstallHyperV
 SetPhotoViewerAssociation
 AddPhotoViewerOpenWith
-# UninstallPDFPrinter
-# UninstallXPSPrinter
-# RemoveFaxPrinter
+UninstallPDFPrinter
+UninstallXPSPrinter
+RemoveFaxPrinter
 
 # HideServerManagerOnLogin
 # DisableShutdownTracker
@@ -126,8 +124,8 @@ AddPhotoViewerOpenWith
 # DisableCtrlAltDelLogin
 # DisableIEEnhancedSecurity
 
-# UnpinStartMenuTiles
-# UnpinTaskbarIcons
+UnpinStartMenuTiles
+UnpinTaskbarIcons
 
 WaitForKey
 Restart
