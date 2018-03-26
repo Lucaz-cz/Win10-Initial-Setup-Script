@@ -23,6 +23,7 @@ DisableDiagTrack
 DisableWAPPush
 
 ### Security Tweaks ###
+# SetUACLow
 # EnableSharingMappedDrives
 # DisableAdminShares
 # DisableSMB1
