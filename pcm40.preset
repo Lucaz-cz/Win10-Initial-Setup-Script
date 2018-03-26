@@ -1,7 +1,7 @@
 # Windows 10 - M40
 
 ### Require administrator privileges ###
-"RequireAdmin",
+RequireAdmin
 
 ### Privacy Tweaks ###
 DisableTelemetry
